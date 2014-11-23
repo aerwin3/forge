@@ -5,6 +5,10 @@
     <title></title>
 </head>
 <body>
-Welcome to the players list
+<ul>
+    {% for player in players %}
+    <li><a href="{{ player.email }}">{{ player.first_name }} {{ player.last_name }}</a></li>
+    {% endfor %}
+</ul>
 </body>
 </html>
