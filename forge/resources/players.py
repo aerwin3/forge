@@ -58,3 +58,16 @@ def update(id):
         except NotFoundException as e:
             raise InvalidRequest(e.message, status_code=404)
     return 'your welcome'
+
+
+@players.route('/players/<id>', methods=['DELETE'])
+def delete(id):
+    if request.headers['Content-Type'] == 'application/json':
+        try:
+            Player.delete(id)
+            return '', 200
+        except NotFoundException as e:
+            raise InvalidRequest(e.message, status_code=404)
+    return 'your welcome'
+
+

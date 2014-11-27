@@ -77,3 +77,8 @@ class Player(Base):
                 raise Exception('DCI number or Username already exist.')
         return player
 
+    @classmethod
+    def delete(cls, id):
+        player = Player.get_by_id(id)
+        db_session.delete(player)
+        db_session.commit()
