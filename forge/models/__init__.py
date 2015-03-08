@@ -19,5 +19,6 @@ def init_db():
     import all models and creating database connection.
     """
     import forge.models.player
+    import forge.models.character
 
     Base.metadata.create_all(bind=engine)

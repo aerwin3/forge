@@ -7,7 +7,7 @@ from forge.models.player import Player
 from forge.resources.resource_errors import InvalidRequest
 from forge.resources.resources_utils import standardize_json
 from forge.models.exceptions import NotFoundException
-
+import logging
 
 players = Blueprint('players', __name__,
                     template_folder='templates')
@@ -37,11 +37,9 @@ def get_player(id):
 @players.route('/players', methods=['POST'])
 def create():
     if request.headers['Content-Type'] == 'application/json':
-        json = request.get_json()
-        for key, value in json.iteritems():
-            json[key] = str(value)
+        json = request.get_json()       
         try:
-            player = Player.create_player(json)
+            player = Player.create(json)
             return jsonify(player.serialize)
         except Exception as e:
             raise InvalidRequest(e.message, status_code=400)

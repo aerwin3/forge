@@ -3,14 +3,15 @@ Object representation of a player
 """
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import relationship 
 from forge.models import Base, db_session
+from forge.models.character import Character
 from forge.models.exceptions import NotFoundException
-
+import ast
 
 class Player(Base):
     __tablename__ = 'players'
     id = Column(Integer, primary_key=True)
-    dci = Column(Integer, unique=True)
     username = Column(String(50), unique=True, nullable=False)
     first_name = Column(String(50))
     last_name = Column(String(50))
@@ -25,18 +26,17 @@ class Player(Base):
             'last_name': self.last_name,
             'email': self.email,
             'phone': self.phone,
-            'dci': self.dci,
-            'username': self.username
+            'username': self.username,
+            'characters':  [character.serialize for character in self.characters]
         }
 
     def __init__(self, first_name=None,
                  last_name=None, email=None,
-                 phone=None, dci=None, username=None, **kwargs):
+                 phone=None, username=None, **kwargs):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
         self.phone = phone
-        self.dci = dci
         self.username = username
 
     def __repr__(self):
@@ -59,6 +59,14 @@ class Player(Base):
         for key, value in attrs.iteritems():
             if key == 'id':
                 continue
+            if key == 'characters':
+                cs = ast.literal_eval(value)
+                chars = []
+                for char in cs:
+                    chars.append(Character(char['first_name'],
+                                           char['last_name']))
+                player.characters = chars
+                continue
             setattr(player, key, value)
         db_session.commit()
         return player
@@ -69,12 +77,12 @@ class Player(Base):
         if player == None:
             try:
                 player = Player(attrs['first_name'], attrs['last_name'],
-                                attrs['email'], attrs['phone'], attrs['dci'],
+                                attrs['email'], attrs['phone'],
                                 attrs['username'])
                 db_session.add(player)
                 db_session.commit()
             except IntegrityError as e:
-                raise Exception('DCI number or Username already exist.')
+                raise Exception('Username already exist.')
         return player
 
     @classmethod
